@@ -1,9 +1,10 @@
-const NC = 5,
-    NR = 5
+const NC = 40,
+    NR = 40
 const ch = window.innerHeight,
     cw = window.innerWidth
 const TILE_H = ch / NC
 const TILE_W = cw / NR
+const SPEED = 100
 
 const canvas = document.getElementById('canvas')
 canvas.height = ch
@@ -12,11 +13,15 @@ canvas.width = cw
 const ctx = canvas.getContext('2d')
 
 const m = []
+// this will contain sorting generator functions for each row
+const rowSorters = []
 
 main()
 
 function main() {
     initMatrix()
+
+    setInterval(draw, SPEED)
 }
 
 function initMatrix() {
@@ -29,8 +34,25 @@ function initMatrix() {
     }
 
     for (let i = 0; i < m.length; i++) {
-        const element = m[i]
-        shuffle(element)
+        shuffle(m[i])
+    }
+
+    for (let i = 0; i < m.length; i++) {
+        rowSorters.push(selectionSort(m[i]))
+    }
+
+    // draw on canvas
+    for (let i = 0; i < NR; i++) {
+        for (let j = 0; j < NC; j++) {
+            square(j * TILE_W, i * TILE_H, TILE_W, TILE_H, color(m[i][j]))
+        }
+    }
+}
+
+function draw() {
+    ctx.clearRect(0, 0, cw, ch)
+    for (let i = 0; i < m.length; i++) {
+        rowSorters[i].next()
     }
 
     // draw on canvas
@@ -63,4 +85,21 @@ function shuffle(arr) {
         arr[i] = arr[j]
         arr[j] = temp
     }
+}
+
+function* selectionSort(arr) {
+    for (let i = 0; i < arr.length; i++) {
+        let minI = i
+        for (let j = i; j < arr.length; j++) {
+            if (arr[j] < arr[minI]) {
+                minI = j
+            }
+        }
+        // swap with max
+        if (minI !== i) {
+            ;[arr[i], arr[minI]] = [arr[minI], arr[i]]
+        }
+        yield
+    }
+    return arr
 }

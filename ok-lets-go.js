@@ -4,7 +4,9 @@ const ch = window.innerHeight,
     cw = window.innerWidth
 const TILE_H = ch / NC
 const TILE_W = cw / NR
-const SPEED = 100
+const SPEED = 1000 / 60
+const SELECTED_SORT = selectionSort
+let intervalId, sortingFinishedCount = 0
 
 const canvas = document.getElementById('canvas')
 canvas.height = ch
@@ -19,9 +21,15 @@ const rowSorters = []
 main()
 
 function main() {
+    document.body.addEventListener("click", e => {
+        startSort()
+    })
     initMatrix()
+}
 
-    setInterval(draw, SPEED)
+function startSort() {
+    if (intervalId) clearInterval(intervalId)
+    intervalId = setInterval(draw, SPEED)
 }
 
 function initMatrix() {
@@ -38,7 +46,7 @@ function initMatrix() {
     }
 
     for (let i = 0; i < m.length; i++) {
-        rowSorters.push(selectionSort(m[i]))
+        rowSorters.push(bubbleSort(m[i]))
     }
 
     // draw on canvas
@@ -50,6 +58,11 @@ function initMatrix() {
 }
 
 function draw() {
+    console.log(123)
+    if (sortingFinishedCount === NR) {
+        clearInterval(intervalId)
+        return
+    }
     ctx.clearRect(0, 0, cw, ch)
     for (let i = 0; i < m.length; i++) {
         rowSorters[i].next()
@@ -69,13 +82,13 @@ function square(x1, y1, width, height, col) {
 }
 
 function color(i) {
-    let c = (i * 360) / NC
-    return `hsl(${c},100%, 30%)`
+    let c = (i * 300) / NC
+    return `hsl(${c},100%, 50%)`
 }
 
 function randomColor() {
     let c = Math.ceil(Math.random() * 360)
-    return `hsl(${c},100%, 30%)`
+    return `hsl(${c},100%, 50%)`
 }
 
 function shuffle(arr) {
@@ -94,10 +107,24 @@ function* selectionSort(arr) {
             if (arr[j] < arr[minI]) {
                 minI = j
             }
+            yield
         }
         // swap with max
         if (minI !== i) {
             ;[arr[i], arr[minI]] = [arr[minI], arr[i]]
+        }
+        yield
+    }
+    return arr
+}
+
+function* bubbleSort(arr) {
+    for (let i = 0; i < arr.length - 1; i++) {
+        for (let j = i + 1; j < arr.length; j++) {
+            if (arr[j] < arr[i]) {
+                [arr[j], arr[i]] = [arr[i], arr[j]]
+            }
+            yield
         }
         yield
     }

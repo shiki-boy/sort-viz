@@ -5,8 +5,9 @@ const ch = window.innerHeight,
 const TILE_H = ch / NC
 const TILE_W = cw / NR
 const SPEED = 1000 / 60
-const SELECTED_SORT = selectionSort
-let intervalId, sortingFinishedCount = 0
+const SELECTED_SORT = insertionSort
+let intervalId,
+    sortingFinishedCount = 0
 
 const canvas = document.getElementById('canvas')
 canvas.height = ch
@@ -21,7 +22,7 @@ const rowSorters = []
 main()
 
 function main() {
-    document.body.addEventListener("click", e => {
+    document.body.addEventListener('click', (e) => {
         startSort()
     })
     initMatrix()
@@ -46,7 +47,7 @@ function initMatrix() {
     }
 
     for (let i = 0; i < m.length; i++) {
-        rowSorters.push(bubbleSort(m[i]))
+        rowSorters.push(SELECTED_SORT(m[i]))
     }
 
     // draw on canvas
@@ -122,10 +123,30 @@ function* bubbleSort(arr) {
     for (let i = 0; i < arr.length - 1; i++) {
         for (let j = i + 1; j < arr.length; j++) {
             if (arr[j] < arr[i]) {
-                [arr[j], arr[i]] = [arr[i], arr[j]]
+                ;[arr[j], arr[i]] = [arr[i], arr[j]]
             }
             yield
         }
+        yield
+    }
+    return arr
+}
+
+function* insertionSort(arr) {
+    for (let i = 1; i < arr.length; i++) {
+        let c = arr[i],
+            index = i
+        for (let j = i - 1; j > -1; j--) {
+            if (arr[j] > c) {
+                arr[j + 1] = arr[j]
+                index = j
+            } else {
+                yield
+                break
+            }
+            yield
+        }
+        arr[index] = c
         yield
     }
     return arr

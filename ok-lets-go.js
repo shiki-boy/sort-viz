@@ -5,9 +5,9 @@ const ch = window.innerHeight,
 const TILE_H = ch / NC
 const TILE_W = cw / NR
 const SPEED = 1000 / 60
-const SELECTED_SORT = insertionSort
 let intervalId,
-    sortingFinishedCount = 0
+    sortingFinished,
+    isSorting = false
 
 const canvas = document.getElementById('canvas')
 canvas.height = ch
@@ -15,25 +15,31 @@ canvas.width = cw
 
 const ctx = canvas.getContext('2d')
 
-const m = []
+let m = []
 // this will contain sorting generator functions for each row
-const rowSorters = []
+let rowSorters = []
 
 main()
 
 function main() {
-    document.body.addEventListener('click', (e) => {
-        startSort()
-    })
+    initMaterial()
     initMatrix()
+    setTimeout(() => {
+        startSort()
+    }, 1000);
 }
 
-function startSort() {
+function startSort(sortBy = insertionSort) {
+    if (sortingFinished.every((e) => e)) {
+        initMatrix(sortBy)
+    }
     if (intervalId) clearInterval(intervalId)
-    intervalId = setInterval(draw, SPEED)
+    intervalId = setInterval(() => draw(sortBy), SPEED)
 }
 
-function initMatrix() {
+function initMatrix(sorterFunc = insertionSort) {
+    m = []
+    rowSorters = []
     for (let i = 0; i < NR; i++) {
         let c = []
         for (let j = 0; j < NC; j++) {
@@ -46,8 +52,10 @@ function initMatrix() {
         shuffle(m[i])
     }
 
+    sortingFinished = new Array(NR).fill(false)
+
     for (let i = 0; i < m.length; i++) {
-        rowSorters.push(SELECTED_SORT(m[i]))
+        rowSorters.push(sorterFunc(m[i]))
     }
 
     // draw on canvas
@@ -59,14 +67,19 @@ function initMatrix() {
 }
 
 function draw() {
-    console.log(123)
-    if (sortingFinishedCount === NR) {
+    // console.log(123)
+    if (sortingFinished.every((e) => e)) {
         clearInterval(intervalId)
+        isSorting = false
         return
+    } else {
+        isSorting = true
     }
     ctx.clearRect(0, 0, cw, ch)
     for (let i = 0; i < m.length; i++) {
-        rowSorters[i].next()
+        if (rowSorters[i].next().done) {
+            sortingFinished[i] = true
+        }
     }
 
     // draw on canvas
@@ -99,6 +112,13 @@ function shuffle(arr) {
         arr[i] = arr[j]
         arr[j] = temp
     }
+}
+
+function initMaterial() {
+    document.addEventListener('DOMContentLoaded', function () {
+        var elems = document.querySelectorAll('.modal')
+        var instances = M.Modal.init(elems)
+    })
 }
 
 function* selectionSort(arr) {

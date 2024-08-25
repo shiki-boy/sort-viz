@@ -3,7 +3,15 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Document</title>
+        <title>SortViz</title>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+        />
+        <link
+            href="https://fonts.googleapis.com/icon?family=Material+Icons"
+            rel="stylesheet"
+        />
     </head>
     <style>
         body {
@@ -15,6 +23,44 @@
     </style>
     <body>
         <canvas id="canvas"></canvas>
+
+        <div id="fab" class="fixed-action-btn">
+            <a class="btn-floating btn-large red modal-trigger" href="#modal1">
+                <i class="large material-icons">play_arrow</i>
+            </a>
+        </div>
+
+        <div id="modal1" class="modal bottom-sheet">
+            <div class="modal-content">
+                <a
+                    class="waves-effect modal-close waves-light btn-small"
+                    onclick="startSort(bubbleSort)"
+                >
+                    Bubble
+                </a>
+                <a
+                    class="waves-effect modal-close waves-light btn-small"
+                    onclick="startSort(selectionSort)"
+                >
+                    Selection
+                </a>
+                <a
+                    class="waves-effect modal-close waves-light btn-small"
+                    onclick="startSort(insertionSort)"
+                >
+                    Insertion
+                </a>
+            </div>
+            <div class="modal-footer">
+                <a
+                    href="#!"
+                    class="modal-close waves-effect waves-green btn-flat"
+                    >Close</a
+                >
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
         <script src="./ok-lets-go.js"></script>
     </body>

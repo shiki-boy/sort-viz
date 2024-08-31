@@ -2,9 +2,12 @@ const NC = 40,
     NR = 40
 const ch = window.innerHeight,
     cw = window.innerWidth
+
 const TILE_H = ch / NC
 const TILE_W = cw / NR
 const SPEED = 1000 / 60
+const DEFAULT_SORT = insertionSort
+
 let intervalId,
     sortingFinished,
     isSorting = false
@@ -26,10 +29,10 @@ function main() {
     initMatrix()
     setTimeout(() => {
         startSort()
-    }, 1000);
+    }, 1000)
 }
 
-function startSort(sortBy = insertionSort) {
+function startSort(sortBy = DEFAULT_SORT) {
     if (sortingFinished.every((e) => e)) {
         initMatrix(sortBy)
     }
@@ -37,7 +40,7 @@ function startSort(sortBy = insertionSort) {
     intervalId = setInterval(() => draw(sortBy), SPEED)
 }
 
-function initMatrix(sorterFunc = insertionSort) {
+function initMatrix(sorterFunc = DEFAULT_SORT) {
     m = []
     rowSorters = []
     for (let i = 0; i < NR; i++) {
@@ -170,4 +173,49 @@ function* insertionSort(arr) {
         yield
     }
     return arr
+}
+
+function* mergeSort(arr) {
+    yield* divide(arr, 0, arr.length - 1)
+    return arr
+}
+
+function* divide(arr, low, high) {
+    if (low >= high) return
+
+    const mid = Math.floor(low + (high - low) / 2)
+    yield* divide(arr, low, mid)
+    yield* divide(arr, mid + 1, high)
+    yield* merge(arr, low, mid, high)
+}
+
+function* merge(arr, low, mid, high) {
+    let x = [],
+        l = low,
+        r = mid + 1
+
+    while (l <= mid && r <= high) {
+        if (arr[l] <= arr[r]) {
+            x.push(arr[l])
+            l++
+        } else {
+            x.push(arr[r])
+            r++
+        }
+    }
+
+    while (l <= mid) {
+        x.push(arr[l])
+        l++
+    }
+
+    while (r <= high) {
+        x.push(arr[r])
+        r++
+    }
+
+    for (let i = low; i <= high; i++) {
+        arr[i] = x[i - low]
+        yield
+    }
 }
